@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import axios from "axios";
 
-export default async function botEngine(){
+export default async function botEngine(access_token, page_id, user_id){
 
     /*   1. get list of images  ->   check if temp/images is empty  */
 
@@ -70,14 +70,17 @@ export default async function botEngine(){
 
     let page_token;
     try{
-        const fbRes = await axios.get(urls.facebook.access)
-        page_token = fbRes.data.data.filter(el=>{return el.id === process.env.FB_PAGE_ID})[0]?.access_token
+        console.log('requesting url: ', `${urls.facebook.access}${access_token}`)
+        const fbRes = await axios.get(`${urls.facebook.access(user_id)}${access_token}`)
+        // console.log('get pages: ',fbRes.data)
+        page_token = fbRes.data.data.filter(el=>{return el.id === page_id})[0]?.access_token
         if(!page_token){
             console.log('facebook page not found, exiting..')
             process.exit();
         }
     }catch(error){
-        console.log('sth went wrong while posting to facebook, exiting..')
+        console.log('sth went wrong while obtaining FB page ID')
+        console.log('error: ', error.response.data)
         process.exit();
     }
     console.log('page token obtained, proceeding to post to facebook')
@@ -85,7 +88,7 @@ export default async function botEngine(){
     /*   8. post into facebook   */
 
     try{
-        const res = await axios.post(`${urls.facebook.photos}?access_token=${page_token}`, {
+        const res = await axios.post(`${urls.facebook.photos(page_id)}?access_token=${page_token}`, {
             url: imgUrl,
             caption:CHOSEN_TEXT
         },{
@@ -95,7 +98,7 @@ export default async function botEngine(){
         })
         console.log('res: ', res.data)
     }catch(err){
-        console.log('error: ', err.data)
+        console.log('sth went wrong while posting to FB')
     }
 
     /*   9. on success make delete request into imgKIT*/

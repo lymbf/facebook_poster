@@ -10,8 +10,9 @@ const urls = {
         get:'https://api.imagekit.io/v1/files'
     },
     facebook:{
-        access: `https://graph.facebook.com/v22.0/${process.env.FB_USER_ID}/accounts?access_token=${process.env.FB_ACCESS_TOKEN}`,
-        photos: 'https://graph.facebook.com/v22.0/613714781832221/photos'
+        access: (id)=>{return `https://graph.facebook.com/v22.0/${id}/accounts?access_token=`},
+        photos: (pageId)=>{return `https://graph.facebook.com/v22.0/${pageId}/photos`},
+        longToken:`https://graph.facebook.com/v22.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${process.env.FB_APP_ID}&client_secret=${process.env.FB_APP_SECRET}&fb_exchange_token=`
     }
 }
 
